@@ -151,7 +151,7 @@ books when navigation across all 66 books is wired up.
 ## Phase 2 — Study Tools
 
 ### SPEC-006: Zustand Stores
-**Status:** TODO
+**Status:** DONE
 
 **What:** Global state management setup.
 
@@ -188,7 +188,7 @@ books when navigation across all 66 books is wired up.
 ---
 
 ### SPEC-007: Highlight Tool
-**Status:** TODO
+**Status:** DONE
 
 **What:** Users can select a verse and apply a color highlight to it.
 
@@ -208,7 +208,7 @@ books when navigation across all 66 books is wired up.
 ---
 
 ### SPEC-008: Notes — Local
-**Status:** TODO
+**Status:** SKIPPED (deferred — stub pane exists in StudyPanel)
 
 **What:** Users can write notes attached to verses, stored locally.
 
@@ -238,7 +238,7 @@ books when navigation across all 66 books is wired up.
 ## Phase 3 — Commentary + Insights
 
 ### SPEC-009: Commentary Pane
-**Status:** TODO
+**Status:** DONE
 
 **What:** Commentary tab in the right panel, showing public domain commentary for the chapter.
 

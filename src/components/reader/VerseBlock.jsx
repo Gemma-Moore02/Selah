@@ -1,11 +1,21 @@
-// TODO Phase 2: add onClick for note/highlight, hasNote prop, selected state
+const HL_BACKGROUND = {
+  yellow: 'var(--hl-yellow)',
+  green:  'var(--hl-green)',
+  blue:   'var(--hl-blue)',
+  pink:   'var(--hl-pink)',
+  purple: 'var(--hl-purple)',
+}
 
-export default function VerseBlock({ verse, text }) {
+export default function VerseBlock({ verse, text, highlightColor, onClick }) {
+  const style = {}
+  if (highlightColor) style.background = HL_BACKGROUND[highlightColor]
+  if (onClick)        style.cursor = 'pointer'
+
   return (
-    <div className="verse-block">
+    <div className="verse-block" style={style} onClick={onClick}>
       <div className="v-num">{verse}</div>
       <div className="v-text">{text}</div>
-      {/* Note dot — stub, activated in Phase 2 (SPEC-008) */}
+      {/* Note dot — activated in SPEC-008 */}
       <div className="note-dot-wrap">
         <div className="note-dot empty" />
       </div>
