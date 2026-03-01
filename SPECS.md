@@ -319,7 +319,7 @@ books when navigation across all 66 books is wired up.
 ## Phase 5 — Auth + Sync
 
 ### SPEC-012: Supabase Auth
-**Status:** TODO
+**Status:** DONE
 
 **What:** Email-based authentication using Supabase Auth.
 
