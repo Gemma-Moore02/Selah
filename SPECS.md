@@ -330,7 +330,7 @@ books when navigation across all 66 books is wired up.
 - Logging out clears session
 
 ### SPEC-013: Notes + Highlights Sync
-**Status:** TODO
+**Status:** DONE
 
 **What:** Migrate notes and highlights from Zustand/localStorage to Supabase.
 

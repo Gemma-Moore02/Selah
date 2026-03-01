@@ -1,11 +1,12 @@
 import { useUIStore }    from '@/store/uiStore'
 import PanelTabs        from './PanelTabs'
+import NotesPane        from './NotesPane'
 import CommentaryPane   from './CommentaryPane'
 import InsightsPane     from './InsightsPane'
 
 export default function StudyPanel({ book, chapter }) {
-  const panelOpen   = useUIStore((s) => s.panelOpen)
-  const activePane  = useUIStore((s) => s.activePane)
+  const panelOpen     = useUIStore((s) => s.panelOpen)
+  const activePane    = useUIStore((s) => s.activePane)
   const setActivePane = useUIStore((s) => s.setActivePane)
 
   return (
@@ -13,20 +14,14 @@ export default function StudyPanel({ book, chapter }) {
       <div className="panel-inner">
         <PanelTabs activePane={activePane} onPaneChange={setActivePane} />
 
-        {/* Notes pane — stub until SPEC-008 */}
         <div className={`pane${activePane === 'notes' ? ' active' : ''}`}>
-          <div className="pane-stub">
-            <div className="pane-stub-label">Notes</div>
-            <div className="pane-stub-note">Coming in the next phase.</div>
-          </div>
+          <NotesPane book={book} chapter={chapter} />
         </div>
 
-        {/* Commentary pane */}
         <div className={`pane${activePane === 'commentary' ? ' active' : ''}`}>
           <CommentaryPane book={book} chapter={chapter} />
         </div>
 
-        {/* Insights pane */}
         <div className={`pane${activePane === 'insights' ? ' active' : ''}`}>
           <InsightsPane book={book} chapter={chapter} />
         </div>

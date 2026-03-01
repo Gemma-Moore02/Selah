@@ -1,8 +1,11 @@
 import { useState }           from 'react'
 import { useBibleText }       from '@/hooks/useBibleText'
 import { useInsights }        from '@/hooks/useInsights'
+import { useHighlights }      from '@/hooks/useHighlights'
+import { useNotes }           from '@/hooks/useNotes'
 import { getSections }        from '@/data/sections'
 import { useStudyStore }      from '@/store/studyStore'
+import { useUIStore }         from '@/store/uiStore'
 import ChapterHeader          from './ChapterHeader'
 import PassageSection         from './PassageSection'
 import VerseBlock             from './VerseBlock'
@@ -26,11 +29,15 @@ export default function BibleText({ book, chapter, onNavigate }) {
     }
   }
 
-  const toolMode           = useStudyStore((s) => s.toolMode)
-  const activeColor        = useStudyStore((s) => s.activeHighlightColor)
-  const highlights         = useStudyStore((s) => s.highlights)
-  const addHighlight       = useStudyStore((s) => s.addHighlight)
-  const removeHighlight    = useStudyStore((s) => s.removeHighlight)
+  const toolMode    = useStudyStore((s) => s.toolMode)
+  const activeColor = useStudyStore((s) => s.activeHighlightColor)
+
+  const { highlightMap, addHighlight, removeHighlight } = useHighlights(book, chapter)
+  const { noteMap }                                     = useNotes(book, chapter)
+
+  const setActiveVerse = useUIStore((s) => s.setActiveVerse)
+  const setPanelOpen   = useUIStore((s) => s.setPanelOpen)
+  const setActivePane  = useUIStore((s) => s.setActivePane)
 
   // Build verse → [insight, …] lookup for quick chip rendering
   const insightsByVerse = {}
@@ -48,11 +55,14 @@ export default function BibleText({ book, chapter, onNavigate }) {
 
   function handleVerseClick(verse) {
     if (toolMode === 'highlight') {
-      addHighlight(book, chapter, verse, activeColor)
+      addHighlight(verse, activeColor)
     } else if (toolMode === 'erase') {
-      removeHighlight(book, chapter, verse)
+      removeHighlight(verse)
+    } else if (toolMode === 'note') {
+      setActiveVerse({ book, chapter, verse })
+      setPanelOpen(true)
+      setActivePane('notes')
     }
-    // note mode handled in SPEC-008
   }
 
   if (isLoading) {
@@ -72,8 +82,8 @@ export default function BibleText({ book, chapter, onNavigate }) {
       <ChapterHeader book={book} chapter={chapter} />
 
       {verses.map(v => {
-        const key = `${book}-${chapter}-${v.verse}`
-        const highlightColor = highlights[key]?.color ?? null
+        const highlightColor = highlightMap[v.verse]?.color ?? null
+        const hasNote        = !!noteMap?.[v.verse]
 
         return (
           <span key={v.verse}>
@@ -84,7 +94,8 @@ export default function BibleText({ book, chapter, onNavigate }) {
               verse={v.verse}
               text={v.text}
               highlightColor={highlightColor}
-              onClick={toolMode !== 'note' ? () => handleVerseClick(v.verse) : undefined}
+              hasNote={hasNote}
+              onClick={() => handleVerseClick(v.verse)}
               insights={insightsByVerse[v.verse]}
               onOpenInsight={handleOpenInsight}
             />

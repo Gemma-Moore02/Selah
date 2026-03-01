@@ -26,6 +26,12 @@ export const useStudyStore = create(
         },
       })),
 
+      removeNote: (book, chapter, verse) => set((state) => {
+        const next = { ...state.notes }
+        delete next[`${book}-${chapter}-${verse}`]
+        return { notes: next }
+      }),
+
       addHighlight: (book, chapter, verse, color) => set((state) => ({
         highlights: {
           ...state.highlights,

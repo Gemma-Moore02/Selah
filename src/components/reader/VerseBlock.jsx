@@ -8,13 +8,16 @@ const HL_BACKGROUND = {
   purple: 'var(--hl-purple)',
 }
 
-export default function VerseBlock({ verse, text, highlightColor, onClick, insights, onOpenInsight }) {
+export default function VerseBlock({ verse, text, highlightColor, onClick, insights, onOpenInsight, hasNote }) {
   const style = {}
   if (highlightColor) style.background = HL_BACKGROUND[highlightColor]
-  if (onClick)        style.cursor = 'pointer'
 
   return (
-    <div className="verse-block" style={style} onClick={onClick}>
+    <div
+      className={`verse-block${hasNote ? ' has-note' : ''}`}
+      style={style}
+      onClick={onClick}
+    >
       <div className="v-num">{verse}</div>
       <div className="v-text">
         {text}
@@ -22,9 +25,8 @@ export default function VerseBlock({ verse, text, highlightColor, onClick, insig
           <InsightChip key={insight.id} insight={insight} onOpen={onOpenInsight} />
         ))}
       </div>
-      {/* Note dot — activated in SPEC-008 */}
       <div className="note-dot-wrap">
-        <div className="note-dot empty" />
+        <div className={`note-dot${hasNote ? '' : ' empty'}`} />
       </div>
     </div>
   )

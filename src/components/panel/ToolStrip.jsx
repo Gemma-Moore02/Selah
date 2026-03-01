@@ -1,4 +1,4 @@
-import { Highlighter, Eraser, StickyNote, BookOpen, Lightbulb } from 'lucide-react'
+import { Highlighter, Eraser, PenLine, StickyNote, BookOpen, Lightbulb } from 'lucide-react'
 import { useStudyStore } from '@/store/studyStore'
 import { useUIStore }   from '@/store/uiStore'
 
@@ -62,6 +62,15 @@ export default function ToolStrip() {
         onClick={() => setToolMode('erase')}
       >
         <Eraser size={15} strokeWidth={1.5} />
+      </button>
+
+      <button
+        className={`tbtn${toolMode === 'note' ? ' active' : ''}`}
+        type="button"
+        title="Note"
+        onClick={() => setToolMode('note')}
+      >
+        <PenLine size={15} strokeWidth={1.5} />
       </button>
 
       <div className="t-div" />
