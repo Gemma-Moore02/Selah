@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selah — Bible Study</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --parchment: #f5f0e8;
+    --parchment-dark: #ede6d6;
+    --ink: #2c2416;
+    --ink-light: #5c4f3a;
+    --ink-faint: #9c8e78;
+    --accent: #8b6f47;
+    --accent-light: #c4a882;
+    --rule: #d9cfc0;
+    --hl-yellow: rgba(255,220,100,0.45);
+    --hl-green:  rgba(140,195,150,0.45);
+    --hl-blue:   rgba(130,175,210,0.45);
+    --hl-pink:   rgba(220,160,160,0.45);
+    --hl-purple: rgba(175,155,210,0.45);
+    --sidebar-w: 220px;
+    --panel-w: 300px;
+    --strip-w: 54px;
+    --topbar-h: 56px;
+    --shadow: 0 4px 32px rgba(44,36,22,0.1);
+    --shadow-lg: 0 8px 48px rgba(44,36,22,0.16);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--parchment);
+    color: var(--ink);
+    font-family: 'Cormorant Garamond', serif;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse at 18% 8%,  rgba(196,168,130,.12) 0%, transparent 55%),
+      radial-gradient(ellipse at 82% 92%, rgba(139,111,71,.08)  0%, transparent 55%);
+    overflow-x: hidden;
+  }
+
+  /* ── TOPBAR ─────────────────────────────── */
+  .topbar {
+    position: fixed; top:0; left:0; right:0; z-index:300;
+    height: var(--topbar-h);
+    background: rgba(245,240,232,.95);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--rule);
+    display: flex; align-items: center;
+  }
+  .tb-left {
+    width: var(--sidebar-w); flex-shrink:0;
+    display:flex; align-items:center; gap:.7rem;
+    padding-left:1rem;
+    transition: width .3s ease;
+  }
+  .sidebar-collapsed .tb-left { width: 52px; }
+  .toggle-btn {
+    width:32px;height:32px; border:none; background:transparent;
+    border-radius:6px; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; color:var(--ink-faint); flex-shrink:0;
+    transition: background .15s,color .15s;
+  }
+  .toggle-btn:hover { background:var(--parchment-dark); color:var(--ink); }
+  .toggle-btn svg { width:16px;height:16px; }
+  .logo {
+    font-family:'Cormorant Garamond',serif;
+    font-size:1.4rem; font-weight:300; letter-spacing:.18em;
+    color:var(--accent); text-transform:uppercase; white-space:nowrap;
+    overflow:hidden; transition: opacity .2s ease;
+  }
+  .logo span { font-style:italic;font-weight:400;letter-spacing:.08em;color:var(--ink);text-transform:none;font-size:1.5rem; }
+  .sidebar-collapsed .logo { opacity:0; pointer-events:none; }
+  .tb-center {
+    flex:1; display:flex; align-items:center; justify-content:center; gap:.45rem;
+  }
+  .sel-wrap { position:relative; display:inline-flex; align-items:center; }
+  .nav-sel {
+    appearance:none; background:transparent;
+    border:1px solid var(--rule); border-radius:4px;
+    padding:.28rem 1.8rem .28rem .7rem;
+    font-family:'Jost',sans-serif; font-size:.73rem; font-weight:400;
+    letter-spacing:.06em; color:var(--ink-light); cursor:pointer; outline:none;
+    transition: border-color .2s,background .2s;
+  }
+  .nav-sel:hover,.nav-sel:focus { border-color:var(--accent-light); background:rgba(196,168,130,.08); }
+  .sel-arrow { position:absolute;right:.45rem;pointer-events:none;color:var(--ink-faint);font-size:.58rem; }
+  .sel-div { width:1px;height:18px;background:var(--rule);margin:0 .15rem; }
+  .trans-badge {
+    font-family:'Jost',sans-serif; font-size:.63rem; font-weight:500;
+    letter-spacing:.1em; color:var(--accent);
+    border:1px solid var(--accent-light); border-radius:3px;
+    padding:.22rem .55rem; cursor:pointer; background:transparent;
+    transition:all .2s; text-transform:uppercase;
+  }
+  .trans-badge:hover { background:var(--accent); color:var(--parchment); }
+  .tb-right { display:flex;align-items:center;gap:.45rem;padding-right:.75rem; }
+  .icon-btn {
+    width:32px;height:32px;border:none;background:transparent;
+    border-radius:50%;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;color:var(--ink-light);transition:background .2s,color .2s;
+  }
+  .icon-btn:hover { background:var(--parchment-dark);color:var(--ink); }
+  .icon-btn svg { width:16px;height:16px; }
+  .avatar {
+    width:32px;height:32px;border-radius:50%;
+    background:linear-gradient(135deg,var(--accent),var(--accent-light));
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Jost',sans-serif;font-size:.65rem;font-weight:500;
+    color:white;letter-spacing:.05em;cursor:pointer;
+  }
+
+  /* ── SHELL ──────────────────────────────── */
+  .shell {
+    display:flex; margin-top:var(--topbar-h);
+    min-height:calc(100vh - var(--topbar-h));
+  }
+
+  /* ── LEFT SIDEBAR ───────────────────────── */
+  .sidebar {
+    width:var(--sidebar-w); flex-shrink:0;
+    border-right:1px solid var(--rule);
+    position:fixed; top:var(--topbar-h); left:0; bottom:0;
+    overflow:hidden; display:flex; flex-direction:column;
+    background:var(--parchment); z-index:100;
+    transition:width .3s ease;
+  }
+  .sidebar-collapsed .sidebar { width:0; border-right-color:transparent; }
+  .sb-inner {
+    padding:1.75rem 1rem 2rem 1.25rem;
+    overflow-y:auto; overflow-x:hidden; flex:1;
+    width:var(--sidebar-w);
+    scrollbar-width:thin; scrollbar-color:var(--rule) transparent;
+    opacity:1; transition:opacity .2s ease;
+  }
+  .sidebar-collapsed .sb-inner { opacity:0; pointer-events:none; }
+  .sb-label {
+    font-family:'Jost',sans-serif; font-size:.58rem; font-weight:500;
+    letter-spacing:.15em; text-transform:uppercase;
+    color:var(--ink-faint); margin-bottom:.6rem; margin-top:1.35rem;
+  }
+  .sb-label:first-child { margin-top:0; }
+  .book-list { list-style:none; }
+  .book-item {
+    font-family:'Jost',sans-serif; font-size:.77rem; font-weight:300;
+    color:var(--ink-light); padding:.27rem .5rem; border-radius:4px;
+    cursor:pointer; transition:all .15s; letter-spacing:.02em; white-space:nowrap;
+  }
+  .book-item:hover { background:var(--parchment-dark);color:var(--ink); }
+  .book-item.active { background:var(--accent);color:var(--parchment);font-weight:400; }
+  .ch-grid { display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:1rem; }
+  .ch-btn {
+    aspect-ratio:1;border:none;background:transparent;border-radius:3px;
+    font-family:'Jost',sans-serif;font-size:.63rem;color:var(--ink-light);
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:all .15s;position:relative;
+  }
+  .ch-btn:hover { background:var(--parchment-dark); }
+  .ch-btn.active { background:var(--accent);color:white;font-weight:500; }
+  .ch-btn.noted::after {
+    content:'';position:absolute;bottom:2px;
+    width:3px;height:3px;border-radius:50%;background:var(--accent-light);
+  }
+  .plan-bar { height:3px;background:var(--rule);border-radius:2px;margin-top:.5rem; }
+  .plan-fill { width:20%;height:100%;background:var(--accent-light);border-radius:2px; }
+
+  /* ── MAIN CONTENT ───────────────────────── */
+  .main-content {
+    flex:1; margin-left:var(--sidebar-w);
+    transition:margin-left .3s ease;
+    display:flex; min-height:calc(100vh - var(--topbar-h));
+  }
+  .sidebar-collapsed .main-content { margin-left:0; }
+
+  /* ── READER ─────────────────────────────── */
+  .reader-wrap {
+    flex:1; padding:3rem 3.5rem 6rem;
+    max-width:740px; margin:0 auto;
+  }
+  .ch-header {
+    text-align:center; margin-bottom:3rem; padding-bottom:2rem;
+    border-bottom:1px solid var(--rule); position:relative;
+  }
+  .ch-header::after {
+    content:'✦'; position:absolute; bottom:-.65rem; left:50%;
+    transform:translateX(-50%);
+    background:var(--parchment); padding:0 .75rem;
+    color:var(--accent-light); font-size:.68rem;
+  }
+  .bk-name {
+    font-family:'Jost',sans-serif; font-size:.63rem; font-weight:400;
+    letter-spacing:.2em; text-transform:uppercase;
+    color:var(--ink-faint); margin-bottom:.5rem;
+  }
+  .ch-title { font-family:'Cormorant Garamond',serif; font-size:2.7rem; font-weight:300; color:var(--ink); }
+  .ch-sub { font-family:'Crimson Pro',serif; font-size:.93rem; font-style:italic; color:var(--ink-faint); margin-top:.55rem; font-weight:300; }
+  .pass-section {
+    font-family:'Jost',sans-serif; font-size:.66rem; font-weight:500;
+    letter-spacing:.12em; text-transform:uppercase;
+    color:var(--accent); margin:2.5rem 0 .7rem;
+  }
+  .verse-block {
+    display:flex; align-items:flex-start;
+    margin-bottom:0; position:relative;
+    border-radius:4px; transition:background .15s; cursor:text;
+    padding:.1rem 0;
+  }
+  .verse-block:hover { background:rgba(196,168,130,.08); }
+  .verse-block.selected { background:rgba(196,168,130,.14); }
+  .v-num {
+    font-family:'Jost',sans-serif; font-size:.57rem; font-weight:500;
+    color:var(--accent-light); min-width:2rem; padding-top:.4rem;
+    flex-shrink:0; letter-spacing:.05em;
+  }
+  .v-text {
+    font-family:'Crimson Pro',serif; font-size:1.18rem; line-height:1.85;
+    color:var(--ink); font-weight:300; padding:.1rem 0; flex:1;
+  }
+  .v-text .hy { background:var(--hl-yellow);border-radius:2px;padding:0 1px; }
+  .v-text .hg { background:var(--hl-green); border-radius:2px;padding:0 1px; }
+  .v-text .hb { background:var(--hl-blue);  border-radius:2px;padding:0 1px; }
+  .v-text .hp { background:var(--hl-pink);  border-radius:2px;padding:0 1px; }
+  .v-text .hu { background:var(--hl-purple);border-radius:2px;padding:0 1px; }
+  .note-dot-wrap {
+    width:22px;flex-shrink:0;
+    display:flex;align-items:flex-start;justify-content:center;
+    padding-top:.55rem; opacity:0; transition:opacity .15s;
+  }
+  .verse-block:hover .note-dot-wrap,
+  .verse-block.has-note .note-dot-wrap { opacity:1; }
+  .note-dot {
+    width:6px;height:6px;border-radius:50%;
+    background:var(--accent-light);cursor:pointer;transition:transform .15s;
+  }
+  .note-dot.empty { background:transparent;border:1.5px solid var(--rule); }
+  .verse-block.has-note .note-dot { background:var(--accent); }
+
+  /* insight chip inline with verse */
+  .insight-chip {
+    display:inline-flex; align-items:center; gap:.25rem;
+    font-family:'Jost',sans-serif; font-size:.55rem; font-weight:500;
+    letter-spacing:.08em; text-transform:uppercase;
+    color: white;
+    border-radius:3px; padding:.18rem .45rem;
+    margin-left:.4rem; cursor:pointer; vertical-align:middle;
+    transition: opacity .15s;
+    position:relative; top:-1px;
+  }
+  .insight-chip:hover { opacity:.85; }
+  .chip-map        { background: #6a8f7a; }
+  .chip-scroll     { background: #7a6a8a; }
+  .chip-arch       { background: #7a6a4a; }
+  .chip-history    { background: #6a7a8a; }
+  .chip-icon { font-size:.6rem; }
+
+  .ch-nav {
+    display:flex;align-items:center;justify-content:center;
+    gap:2rem;padding:2.5rem 0 1rem;
+    border-top:1px solid var(--rule);margin-top:3rem;
+  }
+  .ch-nav-btn {
+    font-family:'Jost',sans-serif;font-size:.68rem;font-weight:400;
+    letter-spacing:.1em;text-transform:uppercase;
+    color:var(--ink-light);background:transparent;
+    border:1px solid var(--rule);border-radius:4px;
+    padding:.38rem 1.2rem;cursor:pointer;
+    display:flex;align-items:center;gap:.45rem;transition:all .2s;
+  }
+  .ch-nav-btn:hover { border-color:var(--accent);color:var(--accent); }
+  .ch-pos { font-family:'Cormorant Garamond',serif;font-size:.88rem;color:var(--ink-faint);font-style:italic; }
+
+  /* ── RIGHT PANEL ────────────────────────── */
+  .right-panel {
+    display:flex; flex-direction:row;
+    position:sticky; top:var(--topbar-h);
+    height:calc(100vh - var(--topbar-h));
+    align-self:flex-start;
+  }
+
+  /* sliding panel */
+  .study-panel {
+    width:0; overflow:hidden;
+    transition:width .3s ease;
+    background:var(--parchment);
+    border-left:1px solid var(--rule);
+    display:flex; flex-direction:column;
+  }
+  .study-panel.open { width:var(--panel-w); }
+  .panel-inner {
+    width:var(--panel-w); height:100%;
+    display:flex; flex-direction:column;
+    opacity:0; transition:opacity .2s ease .05s;
+    pointer-events:none;
+  }
+  .study-panel.open .panel-inner { opacity:1; pointer-events:auto; }
+
+  /* Panel tab bar */
+  .panel-tabs {
+    display:flex; border-bottom:1px solid var(--rule);
+    background: var(--parchment);
+    flex-shrink:0;
+  }
+  .ptab {
+    flex:1; padding:.7rem .25rem .65rem;
+    font-family:'Jost',sans-serif; font-size:.58rem; font-weight:500;
+    letter-spacing:.1em; text-transform:uppercase;
+    color:var(--ink-faint); cursor:pointer; text-align:center;
+    border-bottom:2px solid transparent;
+    transition:color .15s,border-color .15s;
+    white-space:nowrap;
+  }
+  .ptab:hover { color:var(--ink-light); }
+  .ptab.active { color:var(--accent); border-bottom-color:var(--accent); }
+
+  /* panel content panes */
+  .pane { display:none; flex:1; flex-direction:column; overflow:hidden; }
+  .pane.active { display:flex; }
+
+  /* ── NOTES PANE ─────────────────────────── */
+  .note-compose {
+    padding:.95rem 1.1rem; border-bottom:1px solid var(--rule);
+    background:rgba(196,168,130,.06); flex-shrink:0;
+  }
+  .compose-label {
+    font-family:'Jost',sans-serif; font-size:.56rem; font-weight:500;
+    letter-spacing:.12em; text-transform:uppercase; color:var(--accent); margin-bottom:.4rem;
+  }
+  .compose-verse {
+    font-family:'Crimson Pro',serif; font-size:.83rem; font-style:italic;
+    color:var(--ink-faint); margin-bottom:.55rem; line-height:1.5; font-weight:300;
+  }
+  .compose-ta {
+    width:100%; border:1px solid var(--rule); border-radius:6px;
+    padding:.55rem .7rem; resize:none; outline:none;
+    font-family:'Crimson Pro',serif; font-size:.93rem; font-style:italic;
+    color:var(--ink); background:white; line-height:1.6; min-height:76px;
+    font-weight:300; transition:border-color .2s;
+  }
+  .compose-ta:focus { border-color:var(--accent-light); }
+  .compose-ta::placeholder { color:var(--ink-faint); }
+  .compose-footer { display:flex;justify-content:flex-end;gap:.45rem;margin-top:.45rem; }
+  .btn-sm {
+    font-family:'Jost',sans-serif; font-size:.6rem; letter-spacing:.08em;
+    text-transform:uppercase; border-radius:3px; padding:.22rem .65rem; cursor:pointer; transition:all .15s;
+  }
+  .btn-ghost { background:transparent;color:var(--ink-faint);border:1px solid var(--rule); }
+  .btn-ghost:hover { border-color:var(--ink-faint);color:var(--ink-light); }
+  .btn-primary { background:var(--accent);color:white;border:none; }
+  .btn-primary:hover { opacity:.85; }
+
+  .notes-list { flex:1;overflow-y:auto;padding:.7rem 1.1rem 1.5rem;scrollbar-width:thin;scrollbar-color:var(--rule) transparent; }
+  .list-label {
+    font-family:'Jost',sans-serif;font-size:.56rem;font-weight:500;
+    letter-spacing:.12em;text-transform:uppercase;
+    color:var(--ink-faint);margin-bottom:.7rem;margin-top:.3rem;
+  }
+  .note-card {
+    border:1px solid var(--rule);border-radius:7px;
+    padding:.7rem;margin-bottom:.6rem;background:white;
+    cursor:pointer;transition:border-color .15s,box-shadow .15s;
+  }
+  .note-card:hover { border-color:var(--accent-light);box-shadow:0 2px 10px rgba(139,111,71,.08); }
+  .nc-ref { font-family:'Jost',sans-serif;font-size:.58rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:.3rem; }
+  .nc-text { font-family:'Crimson Pro',serif;font-size:.86rem;font-style:italic;color:var(--ink);line-height:1.5;font-weight:300; }
+  .nc-date { font-family:'Jost',sans-serif;font-size:.54rem;color:var(--ink-faint);margin-top:.35rem;letter-spacing:.04em; }
+
+  /* ── COMMENTARY PANE ────────────────────── */
+  .commentary-scroll { flex:1;overflow-y:auto;padding:1rem 1.1rem 1.5rem;scrollbar-width:thin;scrollbar-color:var(--rule) transparent; }
+  .comm-source-select {
+    display:flex; gap:.35rem; flex-wrap:wrap;
+    padding:.8rem 1.1rem .6rem; border-bottom:1px solid var(--rule);
+    flex-shrink:0;
+  }
+  .comm-src-btn {
+    font-family:'Jost',sans-serif; font-size:.58rem; font-weight:400;
+    letter-spacing:.07em; text-transform:uppercase;
+    border:1px solid var(--rule); border-radius:3px; padding:.2rem .55rem;
+    cursor:pointer; color:var(--ink-faint); background:transparent;
+    transition:all .15s;
+  }
+  .comm-src-btn:hover { border-color:var(--accent-light);color:var(--ink-light); }
+  .comm-src-btn.active { background:var(--accent);color:white;border-color:var(--accent); }
+  .comm-passage-ref {
+    font-family:'Jost',sans-serif; font-size:.6rem; font-weight:500;
+    letter-spacing:.1em; text-transform:uppercase;
+    color:var(--accent); margin:1rem 0 .45rem;
+  }
+  .comm-author {
+    font-family:'Cormorant Garamond',serif; font-size:1.05rem; font-weight:400;
+    color:var(--ink); margin-bottom:.5rem;
+  }
+  .comm-author span {
+    font-family:'Jost',sans-serif; font-size:.6rem; font-weight:300;
+    color:var(--ink-faint); letter-spacing:.06em; margin-left:.4rem;
+    font-style:normal;
+  }
+  .comm-text {
+    font-family:'Crimson Pro',serif; font-size:.95rem; line-height:1.72;
+    color:var(--ink-light); font-weight:300;
+  }
+  .comm-text p { margin-bottom:.75rem; }
+  .comm-divider { border:none;border-top:1px solid var(--rule);margin:1.25rem 0; }
+
+  /* ── INSIGHTS PANE ──────────────────────── */
+  .insights-scroll { flex:1;overflow-y:auto;padding:0 0 1.5rem;scrollbar-width:thin;scrollbar-color:var(--rule) transparent; }
+  .insight-card {
+    border-bottom:1px solid var(--rule);
+    padding:1rem 1.1rem;
+    cursor:pointer;
+    transition:background .15s;
+  }
+  .insight-card:hover { background:rgba(196,168,130,.07); }
+  .insight-card:last-child { border-bottom:none; }
+  .ic-type {
+    display:inline-flex; align-items:center; gap:.3rem;
+    font-family:'Jost',sans-serif; font-size:.55rem; font-weight:500;
+    letter-spacing:.1em; text-transform:uppercase;
+    border-radius:3px; padding:.18rem .45rem;
+    color:white; margin-bottom:.5rem;
+  }
+  .ic-map     { background:#6a8f7a; }
+  .ic-scroll  { background:#7a6a8a; }
+  .ic-arch    { background:#7a6a4a; }
+  .ic-history { background:#6a7a8a; }
+  .ic-title {
+    font-family:'Cormorant Garamond',serif; font-size:1.05rem; font-weight:400;
+    color:var(--ink); margin-bottom:.35rem; line-height:1.3;
+  }
+  .ic-preview {
+    font-family:'Crimson Pro',serif; font-size:.88rem; line-height:1.55;
+    color:var(--ink-light); font-weight:300;
+  }
+  .ic-action {
+    display:inline-flex; align-items:center; gap:.3rem;
+    font-family:'Jost',sans-serif; font-size:.58rem; font-weight:400;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--accent);
+    margin-top:.55rem; cursor:pointer; background:none; border:none; padding:0;
+  }
+  .ic-action svg { width:10px;height:10px; }
+  .ic-action:hover { opacity:.75; }
+
+  /* ── TOOL STRIP ─────────────────────────── */
+  .tool-strip {
+    width:var(--strip-w); padding:1.2rem 0;
+    display:flex; flex-direction:column; align-items:center; gap:.18rem;
+    border-left:1px solid var(--rule); background:var(--parchment);
+    flex-shrink:0;
+  }
+  .strip-label {
+    font-family:'Jost',sans-serif; font-size:.5rem; font-weight:400;
+    letter-spacing:.13em; text-transform:uppercase; color:var(--ink-faint);
+    writing-mode:vertical-rl; margin-bottom:.55rem;
+  }
+  .t-div { width:24px;height:1px;background:var(--rule);margin:.35rem 0; }
+  .tbtn {
+    width:34px;height:34px;border:none;background:transparent;
+    border-radius:6px;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;color:var(--ink-faint);transition:all .15s; position:relative;
+  }
+  .tbtn:hover { background:var(--parchment-dark);color:var(--ink); }
+  .tbtn.active { background:var(--accent);color:white; }
+  .tbtn.panel-active { background:var(--parchment-dark);color:var(--accent); }
+  .tbtn svg { width:15px;height:15px; }
+  .tbtn-badge {
+    position:absolute;top:3px;right:3px;
+    width:13px;height:13px;border-radius:50%;
+    background:var(--accent);color:white;
+    font-family:'Jost',sans-serif;font-size:.42rem;font-weight:500;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .hl-sw {
+    width:21px;height:21px;border-radius:50%;border:2px solid transparent;
+    cursor:pointer;transition:transform .15s,border-color .15s;
+  }
+  .hl-sw:hover { transform:scale(1.2); }
+  .hl-sw.active { border-color:var(--ink-light);transform:scale(1.15); }
+  .sw-y{background:rgb(255,220,100)}.sw-g{background:rgb(140,195,150)}.sw-b{background:rgb(130,175,210)}.sw-p{background:rgb(220,160,160)}.sw-u{background:rgb(175,155,210)}
+  .fs-ctrl { display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:.2rem; }
+  .fs-btn {
+    width:26px;height:20px;border:1px solid var(--rule);background:transparent;
+    border-radius:3px;font-family:'Jost',sans-serif;font-size:.6rem;
+    color:var(--ink-light);cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:all .15s;
+  }
+  .fs-btn:hover { background:var(--parchment-dark);border-color:var(--accent-light); }
+
+  /* ── MAP MODAL ──────────────────────────── */
+  .map-modal-backdrop {
+    display:none;position:fixed;inset:0;
+    background:rgba(44,36,22,.45);z-index:500;
+    backdrop-filter:blur(4px);
+    align-items:center;justify-content:center;
+  }
+  .map-modal-backdrop.open { display:flex;animation:fadeIn .2s ease; }
+  .map-modal {
+    background:var(--parchment);border:1px solid var(--rule);
+    border-radius:14px;overflow:hidden;
+    width:680px;max-width:94vw;
+    box-shadow:var(--shadow-lg);
+    display:flex;flex-direction:column;
+  }
+  .map-modal-header {
+    display:flex;align-items:center;justify-content:space-between;
+    padding:1rem 1.25rem;border-bottom:1px solid var(--rule);
+  }
+  .map-modal-title { font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:300;color:var(--ink); }
+  .map-modal-sub { font-family:'Jost',sans-serif;font-size:.6rem;color:var(--ink-faint);letter-spacing:.08em;margin-top:.15rem; }
+  .map-close {
+    width:28px;height:28px;border:none;background:transparent;
+    border-radius:50%;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;color:var(--ink-faint);transition:all .15s;
+  }
+  .map-close:hover { background:var(--parchment-dark);color:var(--ink); }
+  .map-close svg { width:13px;height:13px; }
+  .map-body {
+    display:flex;
+  }
+  /* fake map illustration */
+  .map-svg-area {
+    flex:1; height:320px;
+    background:linear-gradient(160deg,#d4e8d4 0%,#c8dfc8 40%,#b8c8a8 70%,#e8e0c8 100%);
+    position:relative;overflow:hidden;
+  }
+  .map-svg-area svg { width:100%;height:100%; }
+  .map-info {
+    width:220px;flex-shrink:0;padding:1.25rem;
+    border-left:1px solid var(--rule);overflow-y:auto;
+    background:var(--parchment);
+  }
+  .map-place-title { font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:400;color:var(--ink);margin-bottom:.3rem; }
+  .map-place-text {
+    font-family:'Crimson Pro',serif;font-size:.88rem;line-height:1.6;
+    color:var(--ink-light);font-weight:300;
+  }
+  .map-place-text p { margin-bottom:.6rem; }
+  .map-ref {
+    font-family:'Jost',sans-serif;font-size:.58rem;font-weight:500;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--accent);
+    margin-bottom:.5rem;
+  }
+
+  /* ── INSIGHT DETAIL MODAL ───────────────── */
+  .insight-modal-backdrop {
+    display:none;position:fixed;inset:0;
+    background:rgba(44,36,22,.4);z-index:500;
+    backdrop-filter:blur(4px);
+    align-items:center;justify-content:center;
+  }
+  .insight-modal-backdrop.open { display:flex;animation:fadeIn .2s ease; }
+  .insight-modal {
+    background:var(--parchment);border:1px solid var(--rule);
+    border-radius:14px;
+    width:560px;max-width:94vw;max-height:80vh;
+    box-shadow:var(--shadow-lg);
+    display:flex;flex-direction:column;overflow:hidden;
+  }
+  .im-header {
+    display:flex;align-items:flex-start;justify-content:space-between;
+    padding:1.25rem 1.35rem 1rem;border-bottom:1px solid var(--rule);
+    flex-shrink:0;
+  }
+  .im-type {
+    display:inline-flex;align-items:center;gap:.3rem;
+    font-family:'Jost',sans-serif;font-size:.55rem;font-weight:500;
+    letter-spacing:.1em;text-transform:uppercase;
+    border-radius:3px;padding:.18rem .45rem;color:white;margin-bottom:.45rem;
+  }
+  .im-title { font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:300;color:var(--ink); }
+  .im-sub { font-family:'Jost',sans-serif;font-size:.6rem;color:var(--ink-faint);letter-spacing:.07em;margin-top:.2rem; }
+  .im-close {
+    width:28px;height:28px;border:none;background:transparent;
+    border-radius:50%;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;color:var(--ink-faint);transition:all .15s;flex-shrink:0;
+  }
+  .im-close:hover { background:var(--parchment-dark);color:var(--ink); }
+  .im-close svg { width:13px;height:13px; }
+  .im-body { flex:1;overflow-y:auto;padding:1.25rem 1.35rem 1.75rem;scrollbar-width:thin;scrollbar-color:var(--rule) transparent; }
+  .im-text { font-family:'Crimson Pro',serif;font-size:1rem;line-height:1.75;color:var(--ink-light);font-weight:300; }
+  .im-text p { margin-bottom:.85rem; }
+  .im-text strong { font-weight:500;color:var(--ink); }
+  .im-pull {
+    border-left:3px solid var(--accent-light);padding:.5rem .85rem;
+    margin:1rem 0;
+    font-family:'Cormorant Garamond',serif;font-size:1.05rem;
+    font-style:italic;color:var(--ink);line-height:1.6;font-weight:300;
+  }
+
+  /* ── TRANSLATION MODAL ──────────────────── */
+  .trans-modal-backdrop {
+    display:none;position:fixed;inset:0;
+    background:rgba(44,36,22,.35);z-index:400;
+    backdrop-filter:blur(3px);
+    align-items:center;justify-content:center;
+  }
+  .trans-modal-backdrop.open { display:flex;animation:fadeIn .2s ease; }
+  .trans-modal {
+    background:var(--parchment);border:1px solid var(--rule);
+    border-radius:12px;padding:1.75rem;width:460px;max-width:92vw;
+    box-shadow:var(--shadow-lg);
+  }
+  .tm-title { font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:300;color:var(--ink);margin-bottom:.2rem; }
+  .tm-sub { font-family:'Jost',sans-serif;font-size:.6rem;color:var(--ink-faint);letter-spacing:.08em;margin-bottom:1.4rem; }
+  .trans-grid { display:grid;grid-template-columns:1fr 1fr;gap:.45rem; }
+  .trans-opt {
+    border:1px solid var(--rule);border-radius:6px;padding:.7rem;
+    cursor:pointer;transition:all .15s;
+  }
+  .trans-opt:hover { border-color:var(--accent-light);background:rgba(196,168,130,.1); }
+  .trans-opt.active { border-color:var(--accent);background:rgba(139,111,71,.06); }
+  .ta { font-family:'Jost',sans-serif;font-size:.78rem;font-weight:500;color:var(--accent);letter-spacing:.05em; }
+  .tn { font-family:'Crimson Pro',serif;font-size:.83rem;color:var(--ink-light);margin-top:.12rem;font-style:italic;font-weight:300; }
+  .tm-close {
+    margin-top:1.4rem;float:right;
+    font-family:'Jost',sans-serif;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;
+    background:transparent;border:1px solid var(--rule);border-radius:4px;
+    color:var(--ink-light);padding:.38rem 1.1rem;cursor:pointer;transition:all .15s;
+  }
+  .tm-close:hover { border-color:var(--accent);color:var(--accent); }
+
+  @keyframes fadeIn { from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)} }
+  ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--rule);border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar" id="topbar">
+  <div class="tb-left">
+    <button class="toggle-btn" onclick="toggleSidebar()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+    </button>
+    <div class="logo">S<span>elah</span></div>
+  </div>
+  <div class="tb-center">
+    <div class="sel-wrap">
+      <select class="nav-sel">
+        <optgroup label="Old Testament"><option>Genesis</option><option>Exodus</option><option>Psalms</option><option>Isaiah</option></optgroup>
+        <optgroup label="New Testament"><option>Matthew</option><option>Mark</option><option>Luke</option><option selected>John</option><option>Acts</option><option>Romans</option><option>Galatians</option><option>Ephesians</option><option>Revelation</option></optgroup>
+      </select>
+      <span class="sel-arrow">▾</span>
+    </div>
+    <div class="sel-div"></div>
+    <div class="sel-wrap">
+      <select class="nav-sel" style="width:74px">
+        <option>Ch. 1</option><option>Ch. 2</option><option>Ch. 3</option><option selected>Ch. 4</option><option>Ch. 5</option><option>Ch. 6</option><option>Ch. 7</option><option>Ch. 8</option><option>Ch. 9</option><option>Ch. 10</option><option>Ch. 11</option><option>Ch. 12</option><option>Ch. 13</option><option>Ch. 14</option><option>Ch. 15</option><option>Ch. 16</option><option>Ch. 17</option><option>Ch. 18</option><option>Ch. 19</option><option>Ch. 20</option><option>Ch. 21</option>
+      </select>
+      <span class="sel-arrow">▾</span>
+    </div>
+    <div class="sel-div"></div>
+    <button class="trans-badge" onclick="document.querySelector('.trans-modal-backdrop').classList.add('open')">ESV</button>
+  </div>
+  <div class="tb-right">
+    <button class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg></button>
+    <button class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+    <div class="avatar">GR</div>
+  </div>
+</header>
+
+<!-- SHELL -->
+<div class="shell" id="shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-inner">
+      <div class="sb-label">New Testament</div>
+      <ul class="book-list">
+        <li class="book-item">Matthew</li><li class="book-item">Mark</li>
+        <li class="book-item">Luke</li><li class="book-item active">John</li>
+        <li class="book-item">Acts</li><li class="book-item">Romans</li>
+        <li class="book-item">1 Corinthians</li><li class="book-item">Galatians</li>
+        <li class="book-item">Ephesians</li><li class="book-item">Philippians</li>
+        <li class="book-item">Revelation</li>
+      </ul>
+      <div class="sb-label">John — Chapters</div>
+      <div class="ch-grid">
+        <button class="ch-btn">1</button><button class="ch-btn">2</button><button class="ch-btn">3</button>
+        <button class="ch-btn active">4</button><button class="ch-btn noted">5</button><button class="ch-btn">6</button>
+        <button class="ch-btn noted">7</button><button class="ch-btn">8</button><button class="ch-btn">9</button>
+        <button class="ch-btn">10</button><button class="ch-btn noted">11</button><button class="ch-btn">12</button>
+        <button class="ch-btn">13</button><button class="ch-btn">14</button><button class="ch-btn">15</button>
+        <button class="ch-btn">16</button><button class="ch-btn">17</button><button class="ch-btn">18</button>
+        <button class="ch-btn">19</button><button class="ch-btn">20</button><button class="ch-btn">21</button>
+      </div>
+      <div class="sb-label">Reading Plan</div>
+      <div style="font-family:'Jost',sans-serif;font-size:.7rem;color:var(--ink-faint);line-height:1.6">Gospels &amp; Acts<br><span style="color:var(--accent-light)">Day 18 of 90</span></div>
+      <div class="plan-bar"><div class="plan-fill"></div></div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content" id="mainContent">
+
+    <!-- READER -->
+    <div class="reader-wrap">
+      <div class="ch-header">
+        <div class="bk-name">The Gospel According to John</div>
+        <div class="ch-title">Chapter Four</div>
+        <div class="ch-sub">Jesus and the Woman of Samaria · The Official's Son</div>
+      </div>
+
+      <div class="pass-section">Jesus and the Samaritan Woman</div>
+
+      <div class="verse-block" data-v="1" onclick="selectVerse(this)">
+        <div class="v-num">1</div>
+        <div class="v-text">Now when Jesus learned that the Pharisees had heard that Jesus was making and baptizing more disciples than John</div>
+        <div class="note-dot-wrap"><div class="note-dot empty"></div></div>
+      </div>
+      <div class="verse-block" data-v="2" onclick="selectVerse(this)">
+        <div class="v-num">2</div>
+        <div class="v-text">(although Jesus himself did not baptize, but only his disciples),</div>
+        <div class="note-dot-wrap"><div class="note-dot empty"></div></div>
+      </div>
+      <div class="verse-block" data-v="3" onclick="selectVerse(this)">
+        <div class="v-num">3</div>
+        <div class="v-text">he left Judea and departed again for Galilee.</div>
+        <div class="note-dot-wrap"><div class="note-dot empty"></div></div>
+      </div>
+      <div class="verse-block" data-v="4" onclick="selectVerse(this)">
+        <div class="v-num">4</div>
+        <div class="v-text">And he had to pass through Samaria. <span class="insight-chip chip-map" onclick="openMap(event)"><span class="chip-icon">🗺</span> Map</span></div>
+        <div class="note-dot-wrap"><div class="note-dot empty"></div></div>
+      </div>
+      <div class="verse-block has-note" data-v="5" onclick="selectVerse(this)">
+        <div class="v-num">5</div>
+        <div class="v-text">So he came to a town of Samaria called Sychar, near the field that Jacob had given to his son Joseph. <span class="insight-chip chip-arch" onclick="openInsight(event,'arch')"><span class="chip-icon">⛏</span> Archaeology</span></div>
+        <div class="note-dot-wrap"><div class="note-dot"></div></div>
+      </div>
+      <div class="verse-block" data-v="6" onclick="selectVerse(this)">
+        <div class="v-num">6</div>
+        <div class="v-text">Jacob's well was there; so Jesus, wearied as he was from his journey, was sitting beside the well. <span style="font-family:'Jost',sans-serif;font-size:.58rem;color:var(--ink-faint);letter-spacing:.05em">It was about the sixth hour.</span></div>
+        <div class="note-dot-wrap"><div class="note-dot empty"></div></div>
+      </div>
+      <div class="verse-block" data-v="7" onclick="selectVerse(this)">
+        <div class="v-num">7</div>
+        <div class="v-text">A woman from Samaria came to draw water. Jesus said to her, <em>"Give me a drink."</em></div>
+        <div class="note-dot-wrap"><div class="note-dot empty"></div></div>
+      </div>
+      <div class="verse-block" data-v="8" onclick="selectVerse(this)">
+        <div class="v-num">8</div>
+        <div class="v-text">(For his disciples had gone away into the city to buy food.)</div>
+        <div class="note-dot-wrap"><div class="note-dot empty"></div></div>
+      </div>
+      <div class="verse-block" data-v="9" onclick="selectVerse(this)">
+        <div class="v-num">9</div>
+        <div class="v-text">The Samaritan woman said to him, <em>"How is it that you, a Jew, ask for a drink from me, a woman of Samaria?"</em> (For Jews have no dealings with Samaritans.)</div>
+        <div class="note-dot-wrap"><div class="note-dot empty"></div></div>
+      </div>
+      <div class="verse-block" data-v="10" onclick="selectVerse(this)">
+        <div class="v-num">10</div>
+        <div class="v-text"><span class="hy">Jesus answered her, <em>"If you knew the gift of God, and who it is that is saying to you, 'Give me a drink,' you would have asked him, and he would have given you living water."</em></span></div>
+        <div class="note-dot-wrap"><div class="note-dot empty"></div></div>
+      </div>
+      <div class="verse-block" data-v="11" onclick="selectVerse(this)">
+        <div class="v-num">11</div>
+        <div class="v-text">The woman said to him, <em>"Sir, you have nothing to draw water with, and the well is deep. Where do you get that living water?"</em></div>
+        <div class="note-dot-wrap"><div class="note-dot empty"></div></div>
+      </div>
+      <div class="verse-block" data-v="12" onclick="selectVerse(this)">
+        <div class="v-num">12</div>
+        <div class="v-text"><em>"Are you greater than our father Jacob? He gave us the well and drank from it himself, as did his sons and his livestock."</em></div>
+        <div class="note-dot-wrap"><div class="note-dot empty"></div></div>
+      </div>
+      <div class="verse-block" data-v="13" onclick="selectVerse(this)">
+        <div class="v-num">13</div>
+        <div class="v-text">Jesus said to her, <em>"Everyone who drinks of this water will be thirsty again,</em></div>
+        <div class="note-dot-wrap"><div class="note-dot empty"></div></div>
+      </div>
+      <div class="verse-block" data-v="14" onclick="selectVerse(this)">
+        <div class="v-num">14</div>
+        <div class="v-text"><span class="hb"><em>"but whoever drinks of the water that I will give him will never be thirsty again. The water that I will give him will become in him a spring of water welling up to eternal life."</em></span></div>
+        <div class="note-dot-wrap"><div class="note-dot empty"></div></div>
+      </div>
+
+      <div class="pass-section">The Woman's Five Husbands</div>
+
+      <div class="verse-block" data-v="15" onclick="selectVerse(this)">
+        <div class="v-num">15</div>
+        <div class="v-text">The woman said to him, <em>"Sir, give me this water, so that I will not be thirsty or have to come here to draw water."</em></div>
+        <div class="note-dot-wrap"><div class="note-dot empty"></div></div>
+      </div>
+      <div class="verse-block" data-v="16" onclick="selectVerse(this)">
+        <div class="v-num">16</div>
+        <div class="v-text">Jesus said to her, <em>"Go, call your husband, and come here."</em></div>
+        <div class="note-dot-wrap"><div class="note-dot empty"></div></div>
+      </div>
+      <div class="verse-block" data-v="17" onclick="selectVerse(this)">
+        <div class="v-num">17</div>
+        <div class="v-text"><span class="hp">The woman answered him, <em>"I have no husband."</em> Jesus said to her, <em>"You are right in saying, 'I have no husband';"</em></span></div>
+        <div class="note-dot-wrap"><div class="note-dot empty"></div></div>
+      </div>
+      <div class="verse-block" data-v="18" onclick="selectVerse(this)">
+        <div class="v-num">18</div>
+        <div class="v-text"><em>"for you have had five husbands, and the one you now have is not your husband. What you have said is true."</em>
+        <span class="insight-chip chip-scroll" onclick="openInsight(event,'scroll')"><span class="chip-icon">📜</span> Dead Sea Scrolls</span></div>
+        <div class="note-dot-wrap"><div class="note-dot empty"></div></div>
+      </div>
+
+      <div class="ch-nav">
+        <button class="ch-nav-btn"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 18 9 12 15 6"/></svg> John 3</button>
+        <span class="ch-pos">John · Chapter 4</span>
+        <button class="ch-nav-btn">John 5 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+      </div>
+    </div><!-- /reader-wrap -->
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+
+      <!-- STUDY PANEL -->
+      <div class="study-panel open" id="studyPanel">
+        <div class="panel-inner">
+
+          <!-- Tab bar -->
+          <div class="panel-tabs">
+            <div class="ptab active" data-pane="notes" onclick="switchPane(this)">Notes</div>
+            <div class="ptab" data-pane="commentary" onclick="switchPane(this)">Commentary</div>
+            <div class="ptab" data-pane="insights" onclick="switchPane(this)">Insights</div>
+          </div>
+
+          <!-- NOTES PANE -->
+          <div class="pane active" id="pane-notes">
+            <div class="note-compose">
+              <div class="compose-label">John 4:<span id="cvNum">5</span></div>
+              <div class="compose-verse" id="cvText">"So he came to a town of Samaria called Sychar…"</div>
+              <textarea class="compose-ta" id="cvTa">The well at Sychar connects to Gen. 33:19 — Jacob purchased this land. John is pointing back to the patriarchs deliberately.</textarea>
+              <div class="compose-footer">
+                <button class="btn-sm btn-ghost" onclick="document.getElementById('cvTa').value=''">Clear</button>
+                <button class="btn-sm btn-primary" id="saveBtn" onclick="saveNote()">Save</button>
+              </div>
+            </div>
+            <div class="notes-list">
+              <div class="list-label">Saved · John 4</div>
+              <div class="note-card"><div class="nc-ref">John 4:5</div><div class="nc-text">The well at Sychar connects to Gen. 33:19 — Jacob purchased this land. John pointing back to the patriarchs deliberately.</div><div class="nc-date">Feb 20, 2026</div></div>
+              <div class="note-card"><div class="nc-ref">John 4:10</div><div class="nc-text">"Living water" — contrast with the static well. Jesus is the antitype of the rock in the wilderness (1 Cor 10:4).</div><div class="nc-date">Feb 20, 2026</div></div>
+              <div class="note-card"><div class="nc-ref">John 4:14</div><div class="nc-text">The spring "welling up" — ἁλλομένου, a leaping/springing action. Present active participle. Permanent, ongoing life.</div><div class="nc-date">Feb 21, 2026</div></div>
+            </div>
+          </div>
+
+          <!-- COMMENTARY PANE -->
+          <div class="pane" id="pane-commentary">
+            <div class="comm-source-select">
+              <button class="comm-src-btn active">Matthew Henry</button>
+              <button class="comm-src-btn">John Calvin</button>
+              <button class="comm-src-btn">John Gill</button>
+              <button class="comm-src-btn">Geneva</button>
+            </div>
+            <div class="commentary-scroll">
+              <div class="comm-passage-ref">John 4 · Selected Passage</div>
+              <div class="comm-author">Matthew Henry <span>1662–1714</span></div>
+              <div class="comm-text">
+                <p>Christ's coming into Samaria, and his resting at Jacob's well, was not accidental but providential. He who wearied himself with a journey did so that he might have opportunity to do good — revealing the condescending grace with which he sought the lost.</p>
+                <p>The woman of Samaria is met here not as a representative of respectability, but of need. Her coming at the sixth hour, the heat of the day, rather than in the cool of the morning with the other women, suggests an outcast. And it is precisely to such that Christ makes himself known.</p>
+                <p>The request for water is the point of entry — as with Elijah and the widow, as with Abraham's servant and Rebekah at a well. John is building his narrative on the deep grammar of the Old Testament, where a well is always a place of covenant encounter.</p>
+              </div>
+              <hr class="comm-divider"/>
+              <div class="comm-passage-ref">On Verse 10 — Living Water</div>
+              <div class="comm-text">
+                <p>The gift of God here is Christ himself, or rather the Spirit which he gives. The living water is distinguished from standing or stagnant water — it moves, it rises, it sustains. The contrast with the well is deliberate: Jacob's well required labor and a vessel; Christ's gift requires neither.</p>
+                <p>That it becomes <em>in him a spring</em> is remarkable — not merely a supply from outside, but an indwelling principle of spiritual life. Augustine observed that this water does not satisfy thirst and then cease; it transforms the thirsty into a fountain.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- INSIGHTS PANE -->
+          <div class="pane" id="pane-insights">
+            <div class="insights-scroll">
+
+              <div class="insight-card" onclick="openInsight(event,'map2')">
+                <div class="ic-type ic-map">🗺 Geography</div>
+                <div class="ic-title">The Route Through Samaria</div>
+                <div class="ic-preview">Most Jews traveling between Judea and Galilee crossed the Jordan to avoid Samaria. John's "had to pass through" implies divine necessity, not geography.</div>
+                <button class="ic-action">View map <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+              </div>
+
+              <div class="insight-card" onclick="openInsight(event,'arch')">
+                <div class="ic-type ic-arch">⛏ Archaeology</div>
+                <div class="ic-title">Jacob's Well — Confirmed Site</div>
+                <div class="ic-preview">A well at Tell Balata (ancient Shechem/Sychar) has been venerated as Jacob's Well since at least the 4th century. Excavations confirm it is approximately 32 meters deep, consistent with the woman's remark.</div>
+                <button class="ic-action">Read more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+              </div>
+
+              <div class="insight-card" onclick="openInsight(event,'scroll')">
+                <div class="ic-type ic-scroll">📜 Manuscripts</div>
+                <div class="ic-title">John 4 in the Papyri</div>
+                <div class="ic-preview">Papyrus 66 (𝔓⁶⁶, c. 200 AD) and Papyrus 75 (𝔓⁷⁵) both preserve John 4, making this among the best-attested chapters in early NT manuscripts.</div>
+                <button class="ic-action">Read more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+              </div>
+
+              <div class="insight-card" onclick="openInsight(event,'history')">
+                <div class="ic-type ic-history">📖 Historical Context</div>
+                <div class="ic-title">Jews and Samaritans</div>
+                <div class="ic-preview">The enmity between Jews and Samaritans dates to the Assyrian resettlement of 722 BC. By the first century, the hostility was so severe that many Jews would not eat food handled by Samaritans.</div>
+                <button class="ic-action">Read more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+              </div>
+
+            </div>
+          </div>
+
+        </div><!-- /panel-inner -->
+      </div><!-- /study-panel -->
+
+      <!-- TOOL STRIP -->
+      <div class="tool-strip">
+        <span class="strip-label">Tools</span>
+        <button class="tbtn active" title="Highlight">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </button>
+        <button class="tbtn" title="Erase">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 20H7L3 16l11.5-11.5a2.121 2.121 0 0 1 3 3L6 19"/><path d="m6 17 3-3"/></svg>
+        </button>
+        <div class="t-div"></div>
+        <div class="hl-sw sw-y active" onclick="setSwatch(this)"></div>
+        <div class="hl-sw sw-g" onclick="setSwatch(this)"></div>
+        <div class="hl-sw sw-b" onclick="setSwatch(this)"></div>
+        <div class="hl-sw sw-p" onclick="setSwatch(this)"></div>
+        <div class="hl-sw sw-u" onclick="setSwatch(this)"></div>
+        <div class="t-div"></div>
+        <!-- Panel toggles -->
+        <button class="tbtn panel-active" id="tbNotes" onclick="togglePanel('notes')" title="Notes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16l4-2 4 2 4-2 4 2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <span class="tbtn-badge">3</span>
+        </button>
+        <button class="tbtn" id="tbComm" onclick="togglePanel('commentary')" title="Commentary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        </button>
+        <button class="tbtn" id="tbInsights" onclick="togglePanel('insights')" title="Insights">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </button>
+        <div class="t-div"></div>
+        <button class="tbtn" title="Bookmark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        </button>
+        <button class="tbtn" title="Cross-references">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        </button>
+        <div class="t-div"></div>
+        <div class="fs-ctrl">
+          <button class="fs-btn">A+</button>
+          <button class="fs-btn">A−</button>
+        </div>
+      </div>
+
+    </div><!-- /right-panel -->
+  </div><!-- /main-content -->
+</div><!-- /shell -->
+
+<!-- MAP MODAL -->
+<div class="map-modal-backdrop" id="mapModal" onclick="if(event.target===this)closeMap()">
+  <div class="map-modal">
+    <div class="map-modal-header">
+      <div>
+        <div class="map-modal-title">Samaria · Jesus's Journey</div>
+        <div class="map-modal-sub">John 4:4 — Geographic Context</div>
+      </div>
+      <button class="map-close" onclick="closeMap()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="map-body">
+      <!-- Stylized SVG map -->
+      <div class="map-svg-area">
+        <svg viewBox="0 0 500 320" xmlns="http://www.w3.org/2000/svg">
+          <!-- terrain shapes -->
+          <ellipse cx="250" cy="160" rx="200" ry="140" fill="#d4e8c8" opacity=".6"/>
+          <!-- river Jordan -->
+          <path d="M340 20 Q360 80 350 140 Q340 200 360 280" stroke="#7ab8d4" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <text x="368" y="155" font-family="Georgia" font-size="9" fill="#5a90a8" letter-spacing="1">Jordan</text>
+          <!-- Dead Sea -->
+          <ellipse cx="370" cy="240" rx="38" ry="22" fill="#8ab8cc" opacity=".7"/>
+          <text x="345" y="244" font-family="Georgia" font-size="8" fill="#3a6878">Dead Sea</text>
+          <!-- Sea of Galilee -->
+          <ellipse cx="340" cy="60" rx="22" ry="14" fill="#8ab8cc" opacity=".7"/>
+          <text x="308" y="54" font-family="Georgia" font-size="8" fill="#3a6878">Galilee</text>
+          <!-- route line -->
+          <path d="M240 260 Q230 200 235 140 Q238 100 270 65" stroke="#8b6f47" stroke-width="2.5" fill="none" stroke-dasharray="8 5" stroke-linecap="round"/>
+          <!-- Jerusalem dot -->
+          <circle cx="240" cy="264" r="6" fill="#8b6f47"/>
+          <text x="248" y="268" font-family="Georgia" font-size="10" font-weight="bold" fill="#2c2416">Jerusalem</text>
+          <!-- Sychar/Jacob's well dot -->
+          <circle cx="237" cy="148" r="7" fill="#c4a882" stroke="#8b6f47" stroke-width="2"/>
+          <text x="246" y="152" font-family="Georgia" font-size="10" font-weight="bold" fill="#2c2416">Sychar</text>
+          <text x="246" y="163" font-family="Georgia" font-size="8" font-style="italic" fill="#5c4f3a">Jacob's Well</text>
+          <!-- Nazareth dot -->
+          <circle cx="268" cy="72" r="5" fill="#c4a882" stroke="#8b6f47" stroke-width="1.5"/>
+          <text x="276" y="76" font-family="Georgia" font-size="9" fill="#2c2416">Nazareth</text>
+          <!-- Samaria region label -->
+          <text x="160" y="160" font-family="Georgia" font-size="13" font-style="italic" fill="#8b6f47" opacity=".7">Samaria</text>
+          <!-- Judea label -->
+          <text x="170" y="250" font-family="Georgia" font-size="13" font-style="italic" fill="#8b6f47" opacity=".7">Judea</text>
+          <!-- Galilee label -->
+          <text x="200" y="90" font-family="Georgia" font-size="13" font-style="italic" fill="#8b6f47" opacity=".7">Galilee</text>
+          <!-- compass -->
+          <g transform="translate(460,30)">
+            <circle r="16" fill="rgba(245,240,232,.8)" stroke="#d9cfc0" stroke-width="1"/>
+            <text x="0" y="-5" text-anchor="middle" font-family="Georgia" font-size="9" fill="#8b6f47" font-weight="bold">N</text>
+            <path d="M0-10 L3 0 L0 4 L-3 0Z" fill="#8b6f47"/>
+          </g>
+        </svg>
+      </div>
+      <div class="map-info">
+        <div class="map-ref">John 4:4</div>
+        <div class="map-place-title">Why Samaria?</div>
+        <div class="map-place-text">
+          <p>The phrase "had to pass through" (ἔδει) indicates divine necessity in John's Gospel — not geographical convenience. Most Jewish travelers crossed the Jordan to bypass Samaria.</p>
+          <p>Sychar is identified with modern <strong>Askar</strong>, near Shechem (Nablus). The well itself remains accessible today inside a Greek Orthodox church.</p>
+          <p>The journey from Jerusalem to Galilee through Samaria was approximately 70 miles — a 3-day walk.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INSIGHT DETAIL MODAL -->
+<div class="insight-modal-backdrop" id="insightModal" onclick="if(event.target===this)closeInsight()">
+  <div class="insight-modal">
+    <div class="im-header">
+      <div>
+        <div class="im-type ic-arch" id="imType">⛏ Archaeology</div>
+        <div class="im-title" id="imTitle">Jacob's Well — Confirmed Site</div>
+        <div class="im-sub" id="imSub">John 4:5–6 · Archaeological Evidence</div>
+      </div>
+      <button class="im-close" onclick="closeInsight()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="im-body">
+      <div class="im-text" id="imText">
+        <p>The well at <strong>Tell Balata</strong> (biblical Shechem, identified with Sychar) has been continuously venerated as Jacob's Well since at least the 4th century AD, when the pilgrim Egeria described visiting it. A church was built over it by Constantine's direction.</p>
+        <div class="im-pull">"The well is there to this day… and its water is as cold and clear as it was when the patriarch dug it." — Egeria, <em>Itinerarium</em>, c. 381 AD</div>
+        <p>Archaeological excavations confirm a <strong>well approximately 32 meters deep</strong>, cut through solid limestone. The depth is consistent with the woman's observation that Jesus had "nothing to draw with, and the well is deep" (v. 11). Modern measurements put it at 31.5–32 m.</p>
+        <p>The site is located within the area of ancient <strong>Shechem</strong>, at the foot of Mount Gerizim — the sacred mountain of the Samaritans, which explains the woman's question about the proper place to worship in vv. 20–21.</p>
+        <p>The field adjacent to the well is identified in Genesis 33:19 as land purchased by Jacob, later given to Joseph (Gen. 48:22). John's narrative is geographically precise in a way consistent with first-hand knowledge of the region.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TRANSLATION MODAL -->
+<div class="trans-modal-backdrop" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="trans-modal">
+    <div class="tm-title">Choose Translation</div>
+    <div class="tm-sub">Current · English Standard Version</div>
+    <div class="trans-grid">
+      <div class="trans-opt active"><div class="ta">ESV</div><div class="tn">English Standard Version</div></div>
+      <div class="trans-opt"><div class="ta">KJV</div><div class="tn">King James Version</div></div>
+      <div class="trans-opt"><div class="ta">NASB</div><div class="tn">New American Standard</div></div>
+      <div class="trans-opt"><div class="ta">NIV</div><div class="tn">New International Version</div></div>
+      <div class="trans-opt"><div class="ta">WEB</div><div class="tn">World English Bible</div></div>
+      <div class="trans-opt"><div class="ta">YLT</div><div class="tn">Young's Literal Translation</div></div>
+      <div class="trans-opt"><div class="ta">ASV</div><div class="tn">American Standard Version</div></div>
+      <div class="trans-opt"><div class="ta">NET</div><div class="tn">New English Translation</div></div>
+    </div>
+    <button class="tm-close" onclick="document.querySelector('.trans-modal-backdrop').classList.remove('open')">Close</button>
+  </div>
+</div>
+
+<script>
+// ── Sidebar ────────────────────────────────────────────────────────
+function toggleSidebar() {
+  ['shell','topbar'].forEach(id => document.getElementById(id).classList.toggle('sidebar-collapsed'));
+}
+
+// ── Panel + tabs ───────────────────────────────────────────────────
+const studyPanel = document.getElementById('studyPanel');
+const tbIds = { notes:'tbNotes', commentary:'tbComm', insights:'tbInsights' };
+let currentPane = 'notes';
+
+function togglePanel(pane) {
+  if (studyPanel.classList.contains('open') && currentPane === pane) {
+    // close panel
+    studyPanel.classList.remove('open');
+    document.getElementById(tbIds[pane]).classList.remove('panel-active');
+    return;
+  }
+  studyPanel.classList.add('open');
+  activatePane(pane);
+}
+
+function activatePane(pane) {
+  currentPane = pane;
+  // update tab bar
+  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.ptab[data-pane="${pane}"]`).classList.add('active');
+  // update panes
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('pane-' + pane).classList.add('active');
+  // update strip buttons
+  Object.keys(tbIds).forEach(k => document.getElementById(tbIds[k]).classList.remove('panel-active'));
+  document.getElementById(tbIds[pane]).classList.add('panel-active');
+}
+
+function switchPane(tab) {
+  activatePane(tab.dataset.pane);
+}
+
+// ── Verse selection ────────────────────────────────────────────────
+const verseTexts = {
+  1:'Now when Jesus learned that the Pharisees had heard…',2:'(although Jesus himself did not baptize…)',
+  3:'he left Judea and departed again for Galilee.',4:'And he had to pass through Samaria.',
+  5:'"So he came to a town of Samaria called Sychar…"',6:'Jacob\'s well was there; so Jesus, wearied…',
+  7:'A woman from Samaria came to draw water.',8:'(For his disciples had gone away into the city…)',
+  9:'"How is it that you, a Jew, ask for a drink from me…"',
+  10:'"If you knew the gift of God, and who it is that is saying to you…"',
+  11:'"Sir, you have nothing to draw water with, and the well is deep."',
+  12:'"Are you greater than our father Jacob?"',
+  13:'"Everyone who drinks of this water will be thirsty again,"',
+  14:'"but whoever drinks of the water that I will give him…"',
+  15:'"Sir, give me this water, so that I will not be thirsty…"',
+  16:'"Go, call your husband, and come here."',
+  17:'The woman answered him, "I have no husband."',
+  18:'"for you have had five husbands…"',
+};
+const savedNotes = {5:'The well at Sychar connects to Gen. 33:19 — Jacob purchased this land. John is pointing back to the patriarchs deliberately.'};
+
+function selectVerse(block) {
+  document.querySelectorAll('.verse-block').forEach(b => b.classList.remove('selected'));
+  block.classList.add('selected');
+  const v = block.dataset.v;
+  document.getElementById('cvNum').textContent = v;
+  document.getElementById('cvText').textContent = verseTexts[v] || '';
+  document.getElementById('cvTa').value = savedNotes[v] || '';
+  if (!studyPanel.classList.contains('open') || currentPane !== 'notes') togglePanel('notes');
+}
+
+function saveNote() {
+  const v = document.querySelector('.verse-block.selected')?.dataset.v;
+  if (!v) return;
+  const text = document.getElementById('cvTa').value.trim();
+  if (!text) return;
+  savedNotes[v] = text;
+  const b = document.querySelector(`.verse-block[data-v="${v}"]`);
+  if (b) { b.classList.add('has-note'); b.querySelector('.note-dot').classList.remove('empty'); }
+  const btn = document.getElementById('saveBtn');
+  btn.textContent = 'Saved ✓'; setTimeout(() => btn.textContent = 'Save', 1400);
+}
+
+// ── Map modal ──────────────────────────────────────────────────────
+function openMap(e) { e?.stopPropagation(); document.getElementById('mapModal').classList.add('open'); }
+function closeMap() { document.getElementById('mapModal').classList.remove('open'); }
+
+// ── Insight detail modal ───────────────────────────────────────────
+const insightData = {
+  arch: {
+    type:'ic-arch', typeLabel:'⛏ Archaeology', title:"Jacob's Well — Confirmed Site",
+    sub:'John 4:5–6 · Archaeological Evidence',
+    html:`<p>The well at <strong>Tell Balata</strong> (biblical Shechem, identified with Sychar) has been continuously venerated as Jacob's Well since at least the 4th century AD, when the pilgrim Egeria described visiting it. A church was built over it by Constantine's direction.</p>
+<div class="im-pull">"The well is there to this day… its water cold and clear as when the patriarch dug it." — Egeria, <em>Itinerarium</em>, c. 381 AD</div>
+<p>Archaeological excavations confirm a <strong>well approximately 32 meters deep</strong>, cut through solid limestone. The depth is consistent with the woman's remark that Jesus had "nothing to draw with, and the well is deep" (v. 11). Modern measurements put it at 31.5–32 m.</p>
+<p>The site is located within ancient <strong>Shechem</strong>, at the foot of Mount Gerizim — the sacred mountain of the Samaritans, explaining the woman's worship question in vv. 20–21.</p>`
+  },
+  scroll: {
+    type:'ic-scroll', typeLabel:'📜 Manuscripts', title:'John 4 in the Papyri',
+    sub:'Textual Witnesses · Papyrus 66 & 75',
+    html:`<p><strong>Papyrus 66 (𝔓⁶⁶)</strong>, dated to approximately 200 AD and held in Geneva, preserves most of John's Gospel including chapter 4. It is one of the oldest and most complete manuscripts of any New Testament book.</p>
+<div class="im-pull">𝔓⁶⁶ preserves the entire exchange at Jacob's Well with only minor orthographic variants — no textual disputes affect the meaning of the passage.</div>
+<p><strong>Papyrus 75 (𝔓⁷⁵)</strong>, dated c. 175–225 AD, also preserves John 4 and is considered one of the most carefully copied early manuscripts. Together these papyri confirm that the text of John 4 has been transmitted with exceptional fidelity.</p>
+<p>The <strong>Dead Sea Scrolls</strong>, while primarily Old Testament, include material from Qumran that illuminates the sectarian background of first-century Judaism — including attitudes toward purity and shared vessels that make Jesus's request in v. 7 so striking.</p>`
+  },
+  history: {
+    type:'ic-history', typeLabel:'📖 Historical Context', title:'Jews and Samaritans',
+    sub:'First-Century Background · John 4:9',
+    html:`<p>The Samaritans originated from the Assyrian resettlement of the northern kingdom after 722 BC (2 Kings 17). The Assyrians brought foreign peoples who intermarried with remaining Israelites, producing a mixed population with a syncretistic religion that the returning Jewish exiles later rejected.</p>
+<p>By the first century, the hostility was institutionalized. The Talmud records debates about whether Samaritan food could be eaten — many rabbis ruled it could not. To share a vessel with a Samaritan woman would have rendered a Jewish man ritually impure.</p>
+<div class="im-pull">The rabbis declared: "The daughters of the Samaritans are menstruants from their cradle." — Niddah 4:1. This is the legal background behind the woman's shocked question in v. 9.</div>
+<p>Jesus's request for water from her vessel was therefore a deliberate crossing of social, ethnic, and religious boundaries — which is precisely John's point in recording it.</p>`
+  },
+  map2: {
+    type:'ic-map', typeLabel:'🗺 Geography', title:'The Route Through Samaria',
+    sub:'John 4:4 · Divine Necessity',
+    html:`<p>The Greek word <strong>ἔδει</strong> ("had to / it was necessary") appears at key moments in John's Gospel to signal divine compulsion — as in John 3:14 ("the Son of Man must be lifted up") and John 9:4. Jesus did not pass through Samaria merely because it was convenient.</p>
+<p>The standard Jewish route from Jerusalem to Galilee crossed the Jordan at Jericho, traveled north along the eastern bank, then re-crossed near Beth Shean — adding a full day to avoid Samaria. The direct route through Samaria was roughly <strong>70 miles and three days' travel</strong>.</p>
+<div class="im-pull">John's "had to" signals that the encounter at Jacob's Well was not accidental. Christ came to Samaria by appointment.</div>
+<p>Sychar is most plausibly identified with <strong>Askar</strong>, a village on the eastern slope of Mount Ebal, about 1 km northeast of Jacob's Well. Some older scholars identified it with Shechem itself.</p>`
+  },
+};
+
+function openInsight(e, key) {
+  e?.stopPropagation();
+  const d = insightData[key]; if (!d) return;
+  document.getElementById('imType').className = 'im-type ' + d.type;
+  document.getElementById('imType').textContent = d.typeLabel;
+  document.getElementById('imTitle').textContent = d.title;
+  document.getElementById('imSub').textContent = d.sub;
+  document.getElementById('imText').innerHTML = d.html;
+  document.getElementById('insightModal').classList.add('open');
+}
+function closeInsight() { document.getElementById('insightModal').classList.remove('open'); }
+
+// ── UI helpers ─────────────────────────────────────────────────────
+function setSwatch(el) {
+  document.querySelectorAll('.hl-sw').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+}
+document.querySelectorAll('.ptab').forEach(t => t.addEventListener('click', () => switchPane(t)));
+document.querySelectorAll('.trans-opt').forEach(o => o.addEventListener('click', () => {
+  document.querySelectorAll('.trans-opt').forEach(x => x.classList.remove('active'));
+  o.classList.add('active');
+}));
+document.querySelectorAll('.ch-btn').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.ch-btn').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+}));
+document.querySelectorAll('.book-item').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.book-item').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+}));
+document.querySelectorAll('.comm-src-btn').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.comm-src-btn').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+}));
+</script>
+</body>
+</html>
