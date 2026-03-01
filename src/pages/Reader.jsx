@@ -7,8 +7,9 @@ import StudyPanel  from '@/components/panel/StudyPanel'
 import { useUIStore } from '@/store/uiStore'
 
 export default function Reader() {
-  const [book,    setBook]    = useState('John')
-  const [chapter, setChapter] = useState(4)
+  const [book,        setBook]        = useState('John')
+  const [chapter,     setChapter]     = useState(4)
+  const [translation, setTranslation] = useState('KJV')
 
   const sidebarOpen    = useUIStore((s) => s.sidebarOpen)
   const setSidebarOpen = useUIStore((s) => s.setSidebarOpen)
@@ -36,6 +37,8 @@ export default function Reader() {
         onChapterChange={handleChapterChange}
         sidebarOpen={sidebarOpen}
         onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+        translation={translation}
+        onTranslationChange={setTranslation}
       />
 
       <div className={`shell${sidebarOpen ? '' : ' sidebar-collapsed'}`}>
@@ -53,6 +56,7 @@ export default function Reader() {
             <BibleText
               book={book}
               chapter={chapter}
+              translation={translation}
               onNavigate={handleNavigate}
             />
           </div>

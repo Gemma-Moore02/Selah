@@ -995,3 +995,223 @@ button {
   font-family: 'Crimson Pro', serif; font-size: 1rem;
   color: var(--ink-light); line-height: 1.55; font-weight: 300;
 }
+
+/* ── Commentary Page (/commentary) ─────────────────────────────── */
+.cp-page {
+  display: flex; flex-direction: column; min-height: 100vh;
+  background: var(--parchment);
+}
+
+.cp-header {
+  position: sticky; top: 0; z-index: 200;
+  height: var(--topbar-h);
+  background: rgba(245, 240, 232, 0.95); backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--rule);
+  display: flex; align-items: center; gap: 1rem;
+  padding: 0 1.25rem;
+}
+
+.cp-back {
+  display: flex; align-items: center; gap: 0.35rem;
+  font-family: 'Jost', sans-serif; font-size: 0.7rem; font-weight: 400;
+  letter-spacing: 0.06em; color: var(--ink-faint);
+  text-decoration: none; flex-shrink: 0;
+  transition: color 0.15s;
+}
+.cp-back:hover { color: var(--accent); }
+
+.cp-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.35rem; font-weight: 300; letter-spacing: 0.18em;
+  color: var(--accent); text-transform: uppercase;
+  flex-shrink: 0; margin-right: 0.25rem;
+}
+.cp-logo span {
+  font-style: italic; font-weight: 400; letter-spacing: 0.08em;
+  color: var(--ink); text-transform: none; font-size: 1.45rem;
+}
+
+.cp-nav { display: flex; align-items: center; gap: 0.45rem; }
+
+.cp-source-wrap { margin-left: auto; }
+.cp-source-wrap .comm-source-select {
+  padding: 0; border-bottom: none; flex-wrap: nowrap; gap: 0.3rem;
+}
+
+.cp-body {
+  display: flex; flex: 1;
+}
+
+/* Scripture column */
+.cp-scripture {
+  width: 42%; flex-shrink: 0;
+  border-right: 1px solid var(--rule);
+  overflow-y: auto;
+  height: calc(100vh - var(--topbar-h));
+  position: sticky; top: var(--topbar-h);
+  padding: 2.5rem 2.75rem 5rem;
+}
+
+/* Commentary column */
+.cp-commentary {
+  flex: 1; overflow-y: auto;
+  height: calc(100vh - var(--topbar-h));
+  position: sticky; top: var(--topbar-h);
+  padding: 2.5rem 3rem 5rem;
+}
+
+.cp-col-label {
+  font-family: 'Jost', sans-serif; font-size: 0.62rem; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ink-faint); margin-bottom: 1.75rem;
+  display: flex; align-items: baseline; gap: 0.6rem;
+}
+.cp-col-label-dates {
+  font-weight: 300; letter-spacing: 0.06em; color: var(--rule);
+}
+
+/* Scripture verses */
+.cp-verse {
+  display: flex; gap: 0.85rem; align-items: baseline;
+  padding: 0.3rem 0.5rem; border-radius: 5px;
+  cursor: pointer; transition: background 0.15s;
+  margin-bottom: 0.15rem;
+}
+.cp-verse:hover    { background: rgba(196, 168, 130, 0.12); }
+.cp-verse.active   { background: rgba(139, 111, 71, 0.1); }
+
+.cp-vnum {
+  font-family: 'Jost', sans-serif; font-size: 0.62rem; font-weight: 500;
+  color: var(--ink-faint); min-width: 1.5rem; text-align: right;
+  flex-shrink: 0; padding-top: 0.2rem;
+}
+.cp-verse.active .cp-vnum { color: var(--accent); }
+
+.cp-vtext {
+  font-family: 'Crimson Pro', serif; font-size: 1.05rem;
+  line-height: 1.75; color: var(--ink); font-weight: 300;
+}
+
+/* Commentary entries */
+.cp-entry {
+  padding: 0.25rem 0.5rem 0.25rem;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+.cp-entry.active { background: rgba(139, 111, 71, 0.05); }
+
+.cp-entry-ref {
+  font-family: 'Jost', sans-serif; font-size: 0.63rem; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 0.6rem; margin-top: 0.1rem;
+}
+
+.cp-entry .comm-text {
+  font-size: 1rem; line-height: 1.8;
+}
+
+.cp-entry .comm-divider { margin: 1.75rem 0; }
+
+@media (max-width: 768px) {
+  .cp-body           { flex-direction: column; }
+  .cp-scripture      { width: 100%; height: auto; position: static; border-right: none; border-bottom: 1px solid var(--rule); padding: 1.5rem 1.25rem 2rem; }
+  .cp-commentary     { height: auto; position: static; padding: 1.5rem 1.25rem 3rem; }
+  .cp-source-wrap    { display: none; }
+}
+
+/* ── Translation Modal ──────────────────────────────── */
+.tm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(44, 36, 22, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 400;
+  padding: 1rem;
+}
+
+.tm-modal {
+  background: var(--parchment);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  width: min(480px, 100%);
+  padding: 1.5rem;
+  box-shadow: 0 8px 32px rgba(44, 36, 22, 0.18);
+}
+
+.tm-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.tm-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.tm-sub {
+  font-family: 'Jost', sans-serif;
+  font-size: 0.7rem;
+  color: var(--ink-faint);
+  margin-top: 0.2rem;
+  letter-spacing: 0.01em;
+}
+
+.tm-close {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ink-faint);
+  padding: 0.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  transition: color 0.15s, background 0.15s;
+}
+.tm-close:hover { color: var(--ink); background: var(--parchment-dark); }
+
+.tm-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.trans-opt {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  padding: 0.75rem 1rem;
+  background: var(--parchment-dark);
+  border: 1.5px solid var(--rule);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  text-align: left;
+}
+.trans-opt:hover { border-color: var(--accent-light); background: #e8e0ce; }
+.trans-opt.active { border-color: var(--accent); background: rgba(139, 111, 71, 0.08); }
+
+.trans-opt .ta {
+  font-family: 'Jost', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.03em;
+}
+
+.trans-opt .tn {
+  font-family: 'Jost', sans-serif;
+  font-size: 0.68rem;
+  color: var(--ink-faint);
+  line-height: 1.3;
+}

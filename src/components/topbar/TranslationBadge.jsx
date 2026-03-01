@@ -1,7 +1,6 @@
-// TODO Phase 6: onClick opens TranslationModal
-export default function TranslationBadge({ translation = 'KJV' }) {
+export default function TranslationBadge({ translation = 'KJV', onOpen }) {
   return (
-    <button className="trans-badge" type="button">
+    <button className="trans-badge" type="button" onClick={onOpen}>
       {translation}
     </button>
   )

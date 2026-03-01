@@ -350,14 +350,14 @@ books when navigation across all 66 books is wired up.
 ## Phase 6 — Full Commentary Page + Polish
 
 ### SPEC-014: Dedicated Commentary Page
-**Status:** TODO
+**Status:** DONE
 
 **Route:** `/commentary`
 
 **What:** A full-page commentary view, side-by-side with scripture. Richer than the panel.
 
 ### SPEC-015: API.Bible Integration
-**Status:** TODO
+**Status:** DONE
 
 **What:** Replace local WEB JSON with live API.Bible fetches via Tanstack Query.
 

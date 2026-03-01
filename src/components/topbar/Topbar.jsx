@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
-import { PanelLeft, Search, Bookmark, User } from 'lucide-react'
-import NavSelects       from './NavSelects'
-import TranslationBadge from './TranslationBadge'
-import AuthModal        from '@/components/modals/AuthModal'
-import { useAuth }      from '@/hooks/useAuth'
+import { Link } from 'react-router-dom'
+import { PanelLeft, Search, Bookmark, BookOpen, User } from 'lucide-react'
+import NavSelects        from './NavSelects'
+import TranslationBadge  from './TranslationBadge'
+import AuthModal         from '@/components/modals/AuthModal'
+import TranslationModal  from '@/components/modals/TranslationModal'
+import { useAuth }       from '@/hooks/useAuth'
 
 export default function Topbar({
   book,
@@ -12,10 +14,13 @@ export default function Topbar({
   onChapterChange,
   sidebarOpen,
   onToggleSidebar,
+  translation,
+  onTranslationChange,
 }) {
   const { user, initials, signOut } = useAuth()
-  const [authOpen,     setAuthOpen]     = useState(false)
-  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [authOpen,        setAuthOpen]        = useState(false)
+  const [dropdownOpen,    setDropdownOpen]    = useState(false)
+  const [translationOpen, setTranslationOpen] = useState(false)
   const dropdownRef = useRef(null)
 
   // Close dropdown on outside click
@@ -71,7 +76,10 @@ export default function Topbar({
             onChapterChange={onChapterChange}
           />
           <div className="sel-div" />
-          <TranslationBadge translation="KJV" />
+          <TranslationBadge
+            translation={translation}
+            onOpen={() => setTranslationOpen(true)}
+          />
         </div>
 
         {/* Right — icon stubs + avatar */}
@@ -82,6 +90,9 @@ export default function Topbar({
           <button className="icon-btn" type="button" aria-label="Bookmarks">
             <Bookmark size={16} strokeWidth={1.5} />
           </button>
+          <Link to="/commentary" className="icon-btn" aria-label="Commentary">
+            <BookOpen size={16} strokeWidth={1.5} />
+          </Link>
 
           <div className="avatar-wrap" ref={dropdownRef}>
             <button
@@ -110,6 +121,14 @@ export default function Topbar({
       </header>
 
       {authOpen && <AuthModal onClose={() => setAuthOpen(false)} />}
+
+      {translationOpen && (
+        <TranslationModal
+          current={translation}
+          onChange={onTranslationChange}
+          onClose={() => setTranslationOpen(false)}
+        />
+      )}
     </>
   )
 }

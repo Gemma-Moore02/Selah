@@ -13,8 +13,8 @@ import ChapterNav             from './ChapterNav'
 import InsightDetailModal     from '@/components/modals/InsightDetailModal'
 import MapModal               from '@/components/modals/MapModal'
 
-export default function BibleText({ book, chapter, onNavigate }) {
-  const { data: verses, isLoading, isError, error } = useBibleText(book, chapter)
+export default function BibleText({ book, chapter, translation = 'KJV', onNavigate }) {
+  const { data: verses, isLoading, isError, error } = useBibleText(book, chapter, translation)
   const { data: insights }                           = useInsights(book, chapter)
   const sections = getSections(book, chapter)
 
