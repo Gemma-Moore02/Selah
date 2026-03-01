@@ -12,7 +12,7 @@ const SOURCE_KEYS = {
 
 export function useCommentary(source, book, chapter) {
   const key      = SOURCE_KEYS[source] ?? source.toLowerCase().replace(/\s+/g, '-')
-  const bookFile = book.toLowerCase()
+  const bookFile = book.toLowerCase().replace(/\s+/g, '')
   const path     = `../data/commentaries/${key}/${bookFile}.json`
 
   return useQuery({

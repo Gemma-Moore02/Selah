@@ -262,7 +262,7 @@ books when navigation across all 66 books is wired up.
 ---
 
 ### SPEC-010: Insights Pane + Cards
-**Status:** TODO
+**Status:** DONE
 
 **What:** Insights tab showing archaeology, manuscript, geography, and history cards.
 
@@ -297,7 +297,7 @@ books when navigation across all 66 books is wired up.
 ## Phase 4 — Maps
 
 ### SPEC-011: MapModal with Leaflet
-**Status:** TODO
+**Status:** DONE
 
 **What:** Replace the SVG mock map with a real interactive Leaflet map.
 

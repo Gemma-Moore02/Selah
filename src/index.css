@@ -574,3 +574,215 @@ button {
     animation: fadeIn 0.2s ease;
   }
 }
+
+/* ── Insight Chips (inline in verse text) ──────────────────────── */
+.insight-chip {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  font-family: 'Jost', sans-serif; font-size: 0.55rem; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: white; border-radius: 3px; padding: 0.18rem 0.45rem;
+  margin-left: 0.4rem; cursor: pointer; vertical-align: middle;
+  position: relative; top: -1px;
+  transition: opacity 0.15s;
+}
+.insight-chip:hover { opacity: 0.85; }
+.chip-arch    { background: #7a6a4a; }
+.chip-scroll  { background: #7a6a8a; }
+.chip-map     { background: #6a8f7a; }
+.chip-history { background: #6a7a8a; }
+.chip-icon    { font-size: 0.6rem; }
+
+/* ── Insight Cards (in Insights pane) ─────────────────────────── */
+.insights-scroll {
+  flex: 1; overflow-y: auto; padding: 0 0 1.5rem;
+  scrollbar-width: thin; scrollbar-color: var(--rule) transparent;
+}
+
+.insight-card {
+  border-bottom: 1px solid var(--rule);
+  padding: 1rem 1.1rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.insight-card:hover       { background: rgba(196, 168, 130, 0.07); }
+.insight-card:last-child  { border-bottom: none; }
+
+.ic-type {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  font-family: 'Jost', sans-serif; font-size: 0.55rem; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  border-radius: 3px; padding: 0.18rem 0.45rem;
+  color: white; margin-bottom: 0.5rem;
+}
+.ic-arch    { background: #7a6a4a; }
+.ic-scroll  { background: #7a6a8a; }
+.ic-map     { background: #6a8f7a; }
+.ic-history { background: #6a7a8a; }
+
+.ic-title {
+  font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-weight: 400;
+  color: var(--ink); margin-bottom: 0.35rem; line-height: 1.3;
+}
+.ic-preview {
+  font-family: 'Crimson Pro', serif; font-size: 0.88rem; line-height: 1.55;
+  color: var(--ink-light); font-weight: 300;
+}
+.ic-action {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  font-family: 'Jost', sans-serif; font-size: 0.58rem; font-weight: 400;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--accent); margin-top: 0.55rem;
+  cursor: pointer; background: none; border: none; padding: 0;
+}
+.ic-action svg    { width: 10px; height: 10px; }
+.ic-action:hover  { opacity: 0.75; }
+
+/* ── Insight Detail Modal ──────────────────────────────────────── */
+.insight-modal-backdrop {
+  display: none; position: fixed; inset: 0;
+  background: rgba(44, 36, 22, 0.4); z-index: 500;
+  backdrop-filter: blur(4px);
+  align-items: center; justify-content: center;
+}
+.insight-modal-backdrop.open {
+  display: flex;
+  animation: fadeIn 0.2s ease;
+}
+
+.insight-modal {
+  background: var(--parchment); border: 1px solid var(--rule);
+  border-radius: 14px;
+  width: 560px; max-width: 94vw; max-height: 80vh;
+  box-shadow: var(--shadow-lg);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+
+.im-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: 1.25rem 1.35rem 1rem; border-bottom: 1px solid var(--rule);
+  flex-shrink: 0;
+}
+.im-type {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  font-family: 'Jost', sans-serif; font-size: 0.55rem; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  border-radius: 3px; padding: 0.18rem 0.45rem;
+  color: white; margin-bottom: 0.45rem;
+}
+.im-title {
+  font-family: 'Cormorant Garamond', serif; font-size: 1.4rem;
+  font-weight: 300; color: var(--ink);
+}
+.im-sub {
+  font-family: 'Jost', sans-serif; font-size: 0.6rem;
+  color: var(--ink-faint); letter-spacing: 0.07em; margin-top: 0.2rem;
+}
+.im-close {
+  width: 28px; height: 28px; border: none; background: transparent;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--ink-faint); transition: all 0.15s; flex-shrink: 0;
+}
+.im-close:hover { background: var(--parchment-dark); color: var(--ink); }
+.im-close svg   { width: 13px; height: 13px; }
+
+.im-body {
+  flex: 1; overflow-y: auto; padding: 1.25rem 1.35rem 1.75rem;
+  scrollbar-width: thin; scrollbar-color: var(--rule) transparent;
+}
+.im-text {
+  font-family: 'Crimson Pro', serif; font-size: 1rem;
+  line-height: 1.75; color: var(--ink-light); font-weight: 300;
+}
+.im-text p        { margin-bottom: 0.85rem; }
+.im-text strong   { font-weight: 500; color: var(--ink); }
+
+.im-pull {
+  border-left: 3px solid var(--accent-light); padding: 0.5rem 0.85rem;
+  margin: 1rem 0;
+  font-family: 'Cormorant Garamond', serif; font-size: 1.05rem;
+  font-style: italic; color: var(--ink); line-height: 1.6; font-weight: 300;
+}
+
+/* ── Map Modal ─────────────────────────────────────────────────── */
+.map-modal-backdrop {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(44, 36, 22, 0.45); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 1.5rem;
+}
+
+.map-modal {
+  background: var(--parchment); border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+  width: 100%; max-width: 700px; max-height: 90vh;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+
+.map-modal-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 1rem; padding: 1.1rem 1.35rem 0.9rem;
+  border-bottom: 1px solid var(--rule);
+  flex-shrink: 0;
+}
+
+.map-modal-title {
+  font-family: 'Cormorant Garamond', serif; font-size: 1.2rem;
+  font-weight: 500; color: var(--ink); line-height: 1.3;
+}
+
+.map-modal-sub {
+  font-family: 'Jost', sans-serif; font-size: 0.7rem; font-weight: 400;
+  color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.06em;
+  margin-top: 0.2rem;
+}
+
+.map-close {
+  width: 28px; height: 28px; border: none; background: transparent;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--ink-faint); transition: all 0.15s; flex-shrink: 0;
+}
+.map-close:hover { background: var(--parchment-dark); color: var(--ink); }
+.map-close svg   { width: 13px; height: 13px; }
+
+.map-body {
+  display: flex; flex: 1; overflow: hidden; min-height: 0;
+}
+
+.map-leaflet-area {
+  flex: 1; min-height: 300px;
+}
+
+/* Override Leaflet tile layer to feel slightly warmer */
+.map-leaflet-area .leaflet-tile {
+  filter: sepia(12%) brightness(0.97);
+}
+
+.map-info {
+  width: 220px; flex-shrink: 0;
+  padding: 1.1rem 1.1rem 1.25rem;
+  border-left: 1px solid var(--rule);
+  overflow-y: auto;
+  scrollbar-width: thin; scrollbar-color: var(--rule) transparent;
+}
+
+.map-ref {
+  font-family: 'Jost', sans-serif; font-size: 0.65rem; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--accent); margin-bottom: 0.65rem;
+}
+
+.map-place-title {
+  font-family: 'Cormorant Garamond', serif; font-size: 1.1rem;
+  font-weight: 500; color: var(--ink); margin-bottom: 0.5rem; line-height: 1.3;
+}
+
+.map-place-text {
+  font-family: 'Crimson Pro', serif; font-size: 0.92rem;
+  line-height: 1.65; color: var(--ink-light); font-weight: 300;
+}
+
+@media (max-width: 600px) {
+  .map-body        { flex-direction: column; }
+  .map-leaflet-area { min-height: 220px; flex: none; }
+  .map-info        { width: 100%; border-left: none; border-top: 1px solid var(--rule); }
+}
