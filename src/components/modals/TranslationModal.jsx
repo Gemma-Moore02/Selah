@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { X } from 'lucide-react'
 import { TRANSLATIONS } from '@/hooks/useBibleText'
 
-const TRANSLATION_ORDER = ['KJV', 'WEB', 'ASV', 'YLT', 'ESV']
+const TRANSLATION_ORDER = ['KJV', 'WEB', 'ASV', 'ESV']
 
 export default function TranslationModal({ current, onChange, onClose }) {
   // ESC to close

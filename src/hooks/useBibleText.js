@@ -7,8 +7,7 @@ import { fetchChapterEsv }        from '@/services/esvApi'
 export const TRANSLATIONS = {
   KJV: { label: 'King James Version',          source: 'local'    },
   WEB: { label: 'World English Bible',          source: 'apibible', bibleId: '9879dbb7cfe39e4d-01' },
-  ASV: { label: 'American Standard Version',    source: 'apibible', bibleId: '685d1470fe4d5c3b-01' },
-  YLT: { label: "Young's Literal Translation",  source: 'apibible', bibleId: '8bc3c4cfe04ed187-01' },
+  ASV: { label: 'American Standard Version',    source: 'apibible', bibleId: '06125adad2d5898a-01' },
   ESV: { label: 'English Standard Version',     source: 'esv'      },
 }
 
